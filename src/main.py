@@ -24,6 +24,11 @@ _SRC_DIR = Path(__file__).resolve().parent
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from core.config import setup_api_key
 
 
@@ -92,7 +97,10 @@ async def part4_attacks():
     from attacks.attacks import run_attacks, save_attack_results
 
     red_default, red_default_runner = create_red_agent_default()
-    await test_agent(red_default, red_default_runner)
+    try:
+        await test_agent(red_default, red_default_runner)
+    except Exception as e:
+        print(f"Quick smoke test warning (API key check): {e}")
 
     print("\n--- Attacks on Red ---")
     unsafe_results = await run_attacks(
